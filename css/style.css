@@ -34,12 +34,12 @@
     position: absolute;
     z-index: 10;
 }
-.enemy {
+.boss {
     width: 40px;
     height: 40px;
     position: absolute;
 }
-#score {
+#playerHealth {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -48,7 +48,7 @@
     z-index: 100;
     font-family: Arial, "Microsoft YaHei", sans-serif;
 }
-#enemyHealth {
+#bossHealth {
     position: absolute;
     top: 50px;
     left: 10px;

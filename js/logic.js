@@ -1,8 +1,10 @@
 const player = document.getElementById('player');
     const boss = document.getElementById('boss');
     const gameContainer = document.getElementById('gameContainer');
-    const bossHealthElement = document.getElementById('enemyHealthValue');
+    const bossHealthElement = document.getElementById('bossHealthValue');
     const playerHealthElement = document.getElementById('playerHealthValue');
+
+    //const bossBulletsCount = document.getElementById('bossBulletsCount');//Debug
 
     let playerLeft = 175;
     let playerTop = 500;
@@ -25,13 +27,15 @@ const player = document.getElementById('player');
 
 
     const bullets = [];
-    const enemyBullets = [];
+    const bossBullets = [];
     const enemies = [];
     const keys = {};
     var bossAttackMode = 0;
     let isSpacePressed = false;
     let lastShotTime = 0;
     const shootCooldown = 150;
+
+    let isGameOver = false;
 
     document.addEventListener('keydown', (e) => {
         keys[e.key] = true;
@@ -96,18 +100,18 @@ const player = document.getElementById('player');
         {
             for(let i = 0; i < 20; i++)
             {
-                const enemyBullet = document.createElement('img');
-                enemyBullet.src = './src/img/boss_bullet2.png';
-                enemyBullet.className = 'bullet';
-                enemyBullet.style.left = bossLeft + 'px';
-                enemyBullet.style.top = bossTop + 'px';
+                const bossBullet = document.createElement('img');
+                bossBullet.src = './src/img/boss_bullet2.png';
+                bossBullet.className = 'bullet';
+                bossBullet.style.left = bossLeft + 'px';
+                bossBullet.style.top = bossTop + 'px';
                 const horizontalSpeed = Math.cos(i / 20 * 2 * Math.PI);
                 const verticalSpeed = Math.sin(i / 20 * 2 * Math.PI);
 
-                gameContainer.appendChild(enemyBullet);
+                gameContainer.appendChild(bossBullet);
 
-                enemyBullets.push({
-                    element: enemyBullet,
+                bossBullets.push({
+                    element: bossBullet,
                     top: bossTop,
                     left: bossLeft,
                     horizontalSpeed: horizontalSpeed,
@@ -120,18 +124,18 @@ const player = document.getElementById('player');
             
             for(let i = 0; i < 20; i++)
             {
-                const enemyBullet = document.createElement('img');
-                enemyBullet.src = './src/img/boss_bullet2.png';
-                enemyBullet.className = 'bullet';
-                enemyBullet.style.left = bossLeft + 'px';
-                enemyBullet.style.top = bossTop + 'px';
+                const bossBullet = document.createElement('img');
+                bossBullet.src = './src/img/boss_bullet2.png';
+                bossBullet.className = 'bullet';
+                bossBullet.style.left = bossLeft + 'px';
+                bossBullet.style.top = bossTop + 'px';
                 const horizontalSpeed = Math.cos(i / 20 * 0.5 * Math.PI + Angle/2 * Math.PI);
                 const verticalSpeed = Math.sin(i / 20 * 0.5 * Math.PI + Angle/2 * Math.PI);
 
-                gameContainer.appendChild(enemyBullet);
+                gameContainer.appendChild(bossBullet);
 
-                enemyBullets.push({
-                    element: enemyBullet,
+                bossBullets.push({
+                    element: bossBullet,
                     top: bossTop,
                     left: bossLeft,
                     horizontalSpeed: horizontalSpeed,
@@ -150,7 +154,93 @@ const player = document.getElementById('player');
             rect1.top > rect2.bottom);
     }
 
-    function gameLoop() {
+
+    function updateBullets()
+    {
+        /*Debug End*/
+        //bossBulletsCount.textContent = bossBullets.length;
+        console.log("Boss bullets count:\t" + bossBullets.length);
+        console.log("Player bullets count:\t" + bullets.length);
+        console.log(" ");
+        /*Debug End*/
+
+        if(isGameOver) {return;}
+        // 更新子弹位置
+        for(let i = bullets.length - 1; i >= 0; i--) {
+            const bullet = bullets[i];
+            bullet.top -= 8; // 垂直移动速度
+            bullet.left += bullet.horizontalSpeed; // 添加横向移动
+
+            // 更新子弹位置
+            bullet.element.style.top = bullet.top + 'px';
+            bullet.element.style.left = bullet.left + 'px';
+
+            // 移除超出边界的子弹
+            if(bullet.top <= -20 || bullet.left < -10 || bullet.left > gameContainer.offsetWidth || bullet.top > gameContainer.offsetHeight) {
+                bullet.element.remove();
+                bullets.splice(i, 1);
+                continue;
+            }
+            if(isColliding(bullet.element.getBoundingClientRect(),boss.getBoundingClientRect())) 
+            {
+                bullet.element.remove();
+                bullets.splice(i, 1);
+
+                bossHealth -= 1;
+                bossHealthElement.textContent = bossHealth;
+            }
+            if(bossHealth <= 0) 
+            {
+                alert('游戏结束！\n你赢了！你剩余血量：' + playerHealth);
+                isGameOver = true;
+                location.reload();
+                return;
+            }
+        }
+
+        
+
+
+        // 更新敌人子弹位置
+        for(let i = bossBullets.length - 1; i >= 0; i--)
+        {
+            const bossBullet = bossBullets[i];
+            bossBullet.top += bossBullet.verticalSpeed; // 垂直移动速度
+            bossBullet.left += bossBullet.horizontalSpeed; // 添加横向移动
+
+            // 更新子弹位置
+            bossBullet.element.style.top = bossBullet.top + 'px';
+            bossBullet.element.style.left = bossBullet.left + 'px';
+
+            // 移除超出边界的子弹
+            if(bossBullet.top <= -20 || bossBullet.left < -10 || bossBullet.left > gameContainer.offsetWidth || bossBullet.top > gameContainer.offsetHeight) {
+                bossBullet.element.remove();
+                bossBullets.splice(i, 1);
+                continue;
+            }
+
+            if(isColliding(bossBullet.element.getBoundingClientRect(),player.getBoundingClientRect()))
+            {
+                bossBullet.element.remove();
+                bossBullets.splice(i, 1);
+
+                playerHealth -= 1;
+                playerHealthElement.textContent = playerHealth;
+
+            }
+            if(playerHealth <= 0) 
+            {
+                alert('游戏结束！\n你ga了！敌人剩余血量：' + bossHealth);
+                isGameOver = true;
+                location.reload();
+                return;
+            }
+        }
+
+    }
+
+    function updatePlayer()
+    {
         const currentTime = Date.now();
         //角色移动
         if (isSpacePressed && currentTime - lastShotTime >= shootCooldown) 
@@ -176,104 +266,48 @@ const player = document.getElementById('player');
         // 更新角色位置
         player.style.left = playerLeft + 'px';
         player.style.top = playerTop + 'px';
-
-        //boss移动
-        if(bossTop < gameContainer.offsetHeight - boss.offsetHeight && verticalSpeedRate > 0)
-        {
-            bossTop += bossVerticalSpeed * verticalSpeedRate;
-        }
-        if(bossTop > 0 && verticalSpeedRate < 0)
-        {
-            bossTop += bossVerticalSpeed* verticalSpeedRate;
-        }
-        if(bossLeft < gameContainer.offsetWidth - boss.offsetWidth && horizontalSpeedRate > 0)
-        {
-            bossLeft += bossHorizontalSpeed* horizontalSpeedRate;
-        }
-        if(bossLeft > 0 && horizontalSpeedRate < 0)
-        {
-            bossLeft += bossHorizontalSpeed * horizontalSpeedRate;
-        }
-        //bossTop += verticalSpeed * verticalSpeedRate;
-        //bossLeft += horizontalSpeed * horizontalSpeedRate;
-        // 更新boss位置
-        boss.style.left = bossLeft + 'px';
-        boss.style.top = bossTop + 'px';
-
-        // 更新子弹位置
-        for(let i = bullets.length - 1; i >= 0; i--) {
-            const bullet = bullets[i];
-            bullet.top -= 8; // 垂直移动速度
-            bullet.left += bullet.horizontalSpeed; // 添加横向移动
-
-            // 更新子弹位置
-            bullet.element.style.top = bullet.top + 'px';
-            bullet.element.style.left = bullet.left + 'px';
-
-            // 移除超出边界的子弹
-            if(bullet.top <= -20 || bullet.left < -10 || bullet.left > gameContainer.offsetWidth) {
-                bullet.element.remove();
-                bullets.splice(i, 1);
-                continue;
-            }
-            if(isColliding(bullet.element.getBoundingClientRect(),boss.getBoundingClientRect())) 
-            {
-                bullet.element.remove();
-                bullets.splice(i, 1);
-
-                bossHealth -= 1;
-                bossHealthElement.textContent = bossHealth;
-            }
-            if(bossHealth <= 0) 
-            {
-                alert('游戏结束！\n你赢了！你剩余血量：' + playerHealth);
-                location.reload();
-                return;
-            }
-        }
-
-        
-
-
-        // 更新敌人子弹位置
-        for(let i = enemyBullets.length - 1; i >= 0; i--)
-        {
-            const enemyBullet = enemyBullets[i];
-            enemyBullet.top += enemyBullet.verticalSpeed; // 垂直移动速度
-            enemyBullet.left += enemyBullet.horizontalSpeed; // 添加横向移动
-
-            // 更新子弹位置
-            enemyBullet.element.style.top = enemyBullet.top + 'px';
-            enemyBullet.element.style.left = enemyBullet.left + 'px';
-
-            // 移除超出边界的子弹
-            if(enemyBullet.top <= -20 || enemyBullet.left < -10 || enemyBullet.left > gameContainer.offsetWidth) {
-                enemyBullet.element.remove();
-                enemyBullets.splice(i, 1);
-                continue;
-            }
-
-            if(isColliding(enemyBullet.element.getBoundingClientRect(),player.getBoundingClientRect()))
-            {
-                enemyBullet.element.remove();
-                enemyBullets.splice(i, 1);
-
-                playerHealth -= 1;
-                playerHealthElement.textContent = playerHealth;
-
-            }
-            if(playerHealth <= 0) 
-            {
-                alert('游戏结束！\n你ga了！敌人剩余血量：' + bossHealth);
-                location.reload();
-                return;
-            }
-        }
-
-        requestAnimationFrame(gameLoop);
     }
 
+    function updateBoss()
+    {
+        //boss移动
+        if(bossTop < gameContainer.offsetHeight - boss.offsetHeight && verticalSpeedRate > 0)
+            {
+                bossTop += bossVerticalSpeed * verticalSpeedRate;
+            }
+            if(bossTop > 0 && verticalSpeedRate < 0)
+            {
+                bossTop += bossVerticalSpeed* verticalSpeedRate;
+            }
+            if(bossLeft < gameContainer.offsetWidth - boss.offsetWidth && horizontalSpeedRate > 0)
+            {
+                bossLeft += bossHorizontalSpeed* horizontalSpeedRate;
+            }
+            if(bossLeft > 0 && horizontalSpeedRate < 0)
+            {
+                bossLeft += bossHorizontalSpeed * horizontalSpeedRate;
+            }
+            //bossTop += verticalSpeed * verticalSpeedRate;
+            //bossLeft += horizontalSpeed * horizontalSpeedRate;
+            // 更新boss位置
+            boss.style.left = bossLeft + 'px';
+            boss.style.top = bossTop + 'px';
+    }
 
+    
+
+    function gameLoop() 
+    {
+        //updateBullets();
+        updatePlayer();
+        updateBoss();
+        if(!isGameOver)
+        {
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    setInterval(updateBullets, 10);
     setInterval(bossMoveLogic, 150);
     setInterval(bossAttackLogic, 1000);
     setInterval(bossAttackModeChangeLogic,5000);
