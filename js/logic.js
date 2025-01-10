@@ -1,11 +1,11 @@
-const plane = document.getElementById('plane');
+const player = document.getElementById('player');
     const boss = document.getElementById('boss');
     const gameContainer = document.getElementById('gameContainer');
     const bossHealthElement = document.getElementById('enemyHealthValue');
     const playerHealthElement = document.getElementById('playerHealthValue');
 
-    let planeLeft = 175;
-    let planeTop = 500;
+    let playerLeft = 175;
+    let playerTop = 500;
 
     let bossLeft = 175;
     let bossTop = 50;
@@ -15,8 +15,6 @@ const plane = document.getElementById('plane');
     let startPlayerHealth = 100; // 初始玩家血量
     let playerHealth = startPlayerHealth;
 
-    let score = 0;
-
     let verticalSpeedRate = 1;
     let horizontalSpeedRate = 1;
     const bossVerticalSpeed = 1;
@@ -24,7 +22,6 @@ const plane = document.getElementById('plane');
 
     const horizontalSpeed = 2.5;
     const verticalSpeed = 3.5;
-
 
 
     const bullets = [];
@@ -68,9 +65,9 @@ const plane = document.getElementById('plane');
             bullet.className = 'bullet';
 
             // 计算子弹位置，中间子弹在飞机正上方，两侧子弹略微偏移
-            const bulletLeft = planeLeft + plane.offsetWidth/2 - 5 + (i * spacing);
+            const bulletLeft = playerLeft + player.offsetWidth/2 - 5 + (i * spacing);
             bullet.style.left = bulletLeft + 'px';
-            bullet.style.top = (planeTop - 20) + 'px';
+            bullet.style.top = (playerTop - 20) + 'px';
 
             gameContainer.appendChild(bullet);
 
@@ -79,7 +76,7 @@ const plane = document.getElementById('plane');
 
             bullets.push({
                 element: bullet,
-                top: planeTop - 20,
+                top: playerTop - 20,
                 left: bulletLeft,
                 horizontalSpeed: horizontalSpeed // 新增横向速度属性
             });
@@ -162,23 +159,23 @@ const plane = document.getElementById('plane');
             lastShotTime = currentTime;
         }
 
-        if(keys['ArrowLeft'] && planeLeft > 0) {
-            planeLeft -= horizontalSpeed;
+        if(keys['ArrowLeft'] && playerLeft > 0) {
+            playerLeft -= horizontalSpeed;
         }
-        if(keys['ArrowRight'] && planeLeft < gameContainer.offsetWidth - plane.offsetWidth) {
-            planeLeft += horizontalSpeed;
+        if(keys['ArrowRight'] && playerLeft < gameContainer.offsetWidth - player.offsetWidth) {
+            playerLeft += horizontalSpeed;
         }
-        if(keys['ArrowUp'] && planeTop > 0) {
-            planeTop -= verticalSpeed;
+        if(keys['ArrowUp'] && playerTop > 0) {
+            playerTop -= verticalSpeed;
         }
-        if(keys['ArrowDown'] && planeTop < gameContainer.offsetHeight - plane.offsetHeight) {
-            planeTop += verticalSpeed;
+        if(keys['ArrowDown'] && playerTop < gameContainer.offsetHeight - player.offsetHeight) {
+            playerTop += verticalSpeed;
         }
 
 
         // 更新角色位置
-        plane.style.left = planeLeft + 'px';
-        plane.style.top = planeTop + 'px';
+        player.style.left = playerLeft + 'px';
+        player.style.top = playerTop + 'px';
 
         //boss移动
         if(bossTop < gameContainer.offsetHeight - boss.offsetHeight && verticalSpeedRate > 0)
@@ -256,7 +253,7 @@ const plane = document.getElementById('plane');
                 continue;
             }
 
-            if(isColliding(enemyBullet.element.getBoundingClientRect(),plane.getBoundingClientRect()))
+            if(isColliding(enemyBullet.element.getBoundingClientRect(),player.getBoundingClientRect()))
             {
                 enemyBullet.element.remove();
                 enemyBullets.splice(i, 1);
