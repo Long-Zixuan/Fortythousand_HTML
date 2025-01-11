@@ -28,17 +28,18 @@
     bottom: 50px;
     left: 175px;
 }
+.character {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+}
 .bullet {
     width: 10px;
     height: 20px;
     position: absolute;
     z-index: 10;
 }
-.boss {
-    width: 40px;
-    height: 40px;
-    position: absolute;
-}
+
 #playerHealth {
     position: absolute;
     top: 10px;
@@ -61,4 +62,33 @@
     text-align: center;
     margin: 10px;
     font-family: Arial, "Microsoft YaHei", sans-serif;
+}
+#gameEndMsg {
+    position: absolute;
+    top: 300px; /* 距离顶部 300px */
+    left: 30%; /* 距离左边 30% */
+    color: white;
+    font-size: 20px;
+    z-index: 100;
+    font-family: Arial, "Microsoft YaHei", sans-serif;
+}
+
+#restart-button {
+    position: absolute; /* 绝对定位 */
+    bottom: -10px;
+    left: -50%; 
+    transform: translateX(-50%); /* 水平居中 */
+    padding: 10px 20px; /* 内边距 */
+    background-color: #8f7a66; /* 背景颜色 */
+    color: #f9f6f2; /* 文字颜色 */
+    border: none; /* 无边框 */
+    border-radius: 5px; /* 圆角 */
+    cursor: pointer; /* 鼠标指针样式 */
+    font-size: 18px; /* 字体大小 */
+    font-weight: bold; /* 加粗字体 */
+    z-index: 100;
+}
+ 
+#restart-button:hover {
+    background-color: #746655; /* 鼠标悬停时的背景颜色 */
 }

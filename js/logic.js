@@ -3,6 +3,9 @@ const player = document.getElementById('player');
     const gameContainer = document.getElementById('gameContainer');
     const bossHealthElement = document.getElementById('bossHealthValue');
     const playerHealthElement = document.getElementById('playerHealthValue');
+    const restartButton = document.getElementById('restart-button');
+    const restartButtonTextElement = document.getElementById('ButtonText');
+    const gameEndTextElement = document.getElementById('gameEndMsgText');
 
     //const bossBulletsCount = document.getElementById('bossBulletsCount');//Debug
 
@@ -35,7 +38,15 @@ const player = document.getElementById('player');
     let lastShotTime = 0;
     const shootCooldown = 150;
 
+
+    let gameStateMachine = 0;
+    const GAME_RUNNING = 0;
+    const GAME_WIN = 1;
+    const GAME_DIE = -1;
+
     let isGameOver = false;
+    let isWin = false;
+    let isDie = false;
 
     document.addEventListener('keydown', (e) => {
         keys[e.key] = true;
@@ -54,6 +65,7 @@ const player = document.getElementById('player');
 
     function bossAttackModeChangeLogic()
     {
+        if(gameStateMachine != GAME_RUNNING){return;}
         bossAttackMode = Math.random();
     }
 
@@ -89,6 +101,7 @@ const player = document.getElementById('player');
 
     function bossMoveLogic()
     {
+        if(gameStateMachine != GAME_RUNNING){return;}
         verticalSpeedRate = 1 - 2 * Math.random();
         horizontalSpeedRate = 1 - 2 * Math.random();
     }
@@ -96,17 +109,19 @@ const player = document.getElementById('player');
     let Angle = 0;
     function bossAttackLogic()
     {
+        if(gameStateMachine != GAME_RUNNING){return;}
         if(bossAttackMode <= 0.45) 
         {
-            for(let i = 0; i < 20; i++)
+            let createbulletCount = 20;
+            for(let i = 0; i < createbulletCount; i++)
             {
                 const bossBullet = document.createElement('img');
                 bossBullet.src = './src/img/boss_bullet2.png';
                 bossBullet.className = 'bullet';
                 bossBullet.style.left = bossLeft + 'px';
                 bossBullet.style.top = bossTop + 'px';
-                const horizontalSpeed = Math.cos(i / 20 * 2 * Math.PI);
-                const verticalSpeed = Math.sin(i / 20 * 2 * Math.PI);
+                const horizontalSpeed = Math.cos(i / createbulletCount * 2 * Math.PI);
+                const verticalSpeed = Math.sin(i / createbulletCount * 2 * Math.PI);
 
                 gameContainer.appendChild(bossBullet);
 
@@ -153,7 +168,7 @@ const player = document.getElementById('player');
             rect1.bottom < rect2.top ||
             rect1.top > rect2.bottom);
     }
-
+    let hadTellPlayer = false;
 
     function updateBullets()
     {
@@ -164,7 +179,7 @@ const player = document.getElementById('player');
         console.log(" ");
         /*Debug End*/
 
-        if(isGameOver) {return;}
+        if(gameStateMachine != GAME_RUNNING) {return;}
         // 更新子弹位置
         for(let i = bullets.length - 1; i >= 0; i--) {
             const bullet = bullets[i];
@@ -189,11 +204,18 @@ const player = document.getElementById('player');
                 bossHealth -= 1;
                 bossHealthElement.textContent = bossHealth;
             }
+            if(bossHealth == startBossHealth / 2 && !hadTellPlayer)
+            {
+                hadTellPlayer = true;
+                alert("坚持住，Boss只剩下半血了！");
+            }
             if(bossHealth <= 0) 
             {
-                alert('游戏结束！\n你赢了！你剩余血量：' + playerHealth);
-                isGameOver = true;
-                location.reload();
+                gameStateMachine = GAME_WIN;
+               // requestAnimationFrame(winLogic)
+               // alert('游戏结束！\n你赢了！你剩余血量：' + playerHealth);
+               // isGameOver = true;
+               // location.reload();
                 return;
             }
         }
@@ -230,13 +252,46 @@ const player = document.getElementById('player');
             }
             if(playerHealth <= 0) 
             {
-                alert('游戏结束！\n你ga了！敌人剩余血量：' + bossHealth);
-                isGameOver = true;
-                location.reload();
+                gameStateMachine = GAME_DIE;
+                //isGameOver = true;
                 return;
             }
         }
 
+    }
+
+    function winLogic()
+    {
+        const bossDieImg = document.createElement('img');
+        bossDieImg.src = './src/img/boss_die.jpg';
+        bossDieImg.className = 'character';
+        bossDieImg.style.left = bossLeft + 'px';
+        bossDieImg.style.top = bossTop + 'px';
+        gameContainer.appendChild(bossDieImg);
+        boss.style.left = -100 + 'px';
+        boss.style.top = -100 + 'px';
+        restartButton.style.bottom = '10px';
+        restartButton.style.left = '50%';
+        //restartButtonTextElement.textContent = "你赢了！重新开始"
+        gameEndTextElement.textContent = "你赢了!你剩余血量："+playerHealth;
+        
+    }
+
+
+    function dieLogic()
+    {
+        const playerDieImg = document.createElement('img');
+        playerDieImg.src = './src/img/player_die.png';
+        playerDieImg.className = 'character';
+        playerDieImg.style.left = playerLeft + 'px';
+        playerDieImg.style.top = playerTop + 'px';
+        gameContainer.appendChild(playerDieImg);
+        player.style.left = -100 + 'px';
+        player.style.top = -100 + 'px';
+        restartButton.style.bottom = '10px';
+        restartButton.style.left = '50%';
+        //restartButtonTextElement.textContent = "你ga了。重新开始"
+        gameEndTextElement.textContent = "你ga了。Boss剩余血量："+bossHealth;
     }
 
     function updatePlayer()
@@ -301,12 +356,27 @@ const player = document.getElementById('player');
         //updateBullets();
         updatePlayer();
         updateBoss();
-        if(!isGameOver)
+
+        if(gameStateMachine == GAME_RUNNING)
         {
             requestAnimationFrame(gameLoop);
         }
+        else if(gameStateMachine == GAME_WIN)
+        {
+            requestAnimationFrame(winLogic);
+            
+            //alert('游戏结束！\n你赢了！敌人剩余血量：' + playerHealth);
+            //location.reload();
+        }
+        else if(gameStateMachine == GAME_DIE)
+        {
+            requestAnimationFrame(dieLogic);
+        }
     }
 
+    restartButton.addEventListener('click', function() {
+        location.reload();
+    });
     setInterval(updateBullets, 10);
     setInterval(bossMoveLogic, 150);
     setInterval(bossAttackLogic, 1000);
