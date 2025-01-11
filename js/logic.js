@@ -4,8 +4,12 @@ const player = document.getElementById('player');
     const bossHealthElement = document.getElementById('bossHealthValue');
     const playerHealthElement = document.getElementById('playerHealthValue');
     const restartButton = document.getElementById('restart-button');
+    const pauseButton = document.getElementById('pause-button');
     const restartButtonTextElement = document.getElementById('ButtonText');
+    const pauseButtonTextElement = document.getElementById('PauseText');
     const gameEndTextElement = document.getElementById('gameEndMsgText');
+
+    const bgm = document.getElementById("bgMusic");
 
     //const bossBulletsCount = document.getElementById('bossBulletsCount');//Debug
 
@@ -43,10 +47,9 @@ const player = document.getElementById('player');
     const GAME_RUNNING = 0;
     const GAME_WIN = 1;
     const GAME_DIE = -1;
+    const GAME_PAUSE = 2;
 
-    let isGameOver = false;
-    let isWin = false;
-    let isDie = false;
+    
 
     document.addEventListener('keydown', (e) => {
         keys[e.key] = true;
@@ -136,16 +139,16 @@ const player = document.getElementById('player');
         }
         else if(bossAttackMode <= 0.9)
         {
-            
-            for(let i = 0; i < 20; i++)
+            let createBulletCount = 20;
+            for(let i = 0; i < createBulletCount; i++)
             {
                 const bossBullet = document.createElement('img');
                 bossBullet.src = './src/img/boss_bullet2.png';
                 bossBullet.className = 'bullet';
                 bossBullet.style.left = bossLeft + 'px';
                 bossBullet.style.top = bossTop + 'px';
-                const horizontalSpeed = Math.cos(i / 20 * 0.5 * Math.PI + Angle/2 * Math.PI);
-                const verticalSpeed = Math.sin(i / 20 * 0.5 * Math.PI + Angle/2 * Math.PI);
+                const horizontalSpeed = Math.cos(i / createBulletCount * 0.5 * Math.PI + Angle/2 * Math.PI);
+                const verticalSpeed = Math.sin(i / createBulletCount * 0.5 * Math.PI + Angle/2 * Math.PI);
 
                 gameContainer.appendChild(bossBullet);
 
@@ -206,6 +209,11 @@ const player = document.getElementById('player');
             }
             if(bossHealth == startBossHealth / 2 && !hadTellPlayer)
             {
+                for(key in keys)
+                {
+                    keys[key] = false;
+                }
+                isSpacePressed = false;
                 hadTellPlayer = true;
                 alert("坚持住，Boss只剩下半血了！");
             }
@@ -260,16 +268,50 @@ const player = document.getElementById('player');
 
     }
 
+    function pauseButtonLogic()
+    {
+        if(gameStateMachine == GAME_PAUSE)
+        {
+            gameStateMachine = GAME_RUNNING;
+            bgm.play();
+        }
+        else if(gameStateMachine == GAME_RUNNING)
+        {
+            gameStateMachine = GAME_PAUSE;
+            bgm.pause();
+        }
+    }
+
+    function pauseLogic()
+    {
+        if(keys['Escape'] && gameStateMachine == GAME_RUNNING)
+        {
+            gameStateMachine = GAME_PAUSE;
+            bgm.pause();
+        }
+        else if(keys['Escape'] && gameStateMachine == GAME_PAUSE)
+        {
+            gameStateMachine = GAME_RUNNING;
+            bgm.play();
+        }
+
+        if(gameStateMachine == GAME_PAUSE)
+        {
+            pauseButtonTextElement.textContent = "继续";
+            gameEndTextElement.textContent = "游戏已暂停";     
+        }
+        else if(gameStateMachine == GAME_RUNNING)
+        {
+            pauseButtonTextElement.textContent = "暂停";
+            gameEndTextElement.textContent = "";
+        }
+
+    }
+
     function winLogic()
     {
-        const bossDieImg = document.createElement('img');
-        bossDieImg.src = './src/img/boss_die.jpg';
-        bossDieImg.className = 'character';
-        bossDieImg.style.left = bossLeft + 'px';
-        bossDieImg.style.top = bossTop + 'px';
-        gameContainer.appendChild(bossDieImg);
-        boss.style.left = -100 + 'px';
-        boss.style.top = -100 + 'px';
+        bgm.pause();
+        boss.src = './src/img/boss_die.png';
         restartButton.style.bottom = '10px';
         restartButton.style.left = '50%';
         //restartButtonTextElement.textContent = "你赢了！重新开始"
@@ -280,14 +322,8 @@ const player = document.getElementById('player');
 
     function dieLogic()
     {
-        const playerDieImg = document.createElement('img');
-        playerDieImg.src = './src/img/player_die.png';
-        playerDieImg.className = 'character';
-        playerDieImg.style.left = playerLeft + 'px';
-        playerDieImg.style.top = playerTop + 'px';
-        gameContainer.appendChild(playerDieImg);
-        player.style.left = -100 + 'px';
-        player.style.top = -100 + 'px';
+        bgm.pause();
+        player.src = './src/img/player_die.png';
         restartButton.style.bottom = '10px';
         restartButton.style.left = '50%';
         //restartButtonTextElement.textContent = "你ga了。重新开始"
@@ -349,26 +385,37 @@ const player = document.getElementById('player');
             boss.style.top = bossTop + 'px';
     }
 
-    
+    function update()
+    {
+        bgm.play();// 用户进行交互后才有bgm，别问，问就是HTML特性
+        updatePlayer();
+        updateBoss();
+    }
 
     function gameLoop() 
     {
         //updateBullets();
-        updatePlayer();
-        updateBoss();
+        
+        pauseLogic();
 
         if(gameStateMachine == GAME_RUNNING)
         {
+            update();
+        }
+
+        if(gameStateMachine == GAME_PAUSE || gameStateMachine == GAME_RUNNING)
+        {
             requestAnimationFrame(gameLoop);
         }
-        else if(gameStateMachine == GAME_WIN)
+
+        if(gameStateMachine == GAME_WIN)
         {
             requestAnimationFrame(winLogic);
-            
             //alert('游戏结束！\n你赢了！敌人剩余血量：' + playerHealth);
             //location.reload();
         }
-        else if(gameStateMachine == GAME_DIE)
+
+        if(gameStateMachine == GAME_DIE)
         {
             requestAnimationFrame(dieLogic);
         }
@@ -377,10 +424,12 @@ const player = document.getElementById('player');
     restartButton.addEventListener('click', function() {
         location.reload();
     });
+    pauseButton.addEventListener('click',pauseButtonLogic);
     setInterval(updateBullets, 10);
     setInterval(bossMoveLogic, 150);
     setInterval(bossAttackLogic, 1000);
     setInterval(bossAttackModeChangeLogic,5000);
+    
     gameLoop();
 
 

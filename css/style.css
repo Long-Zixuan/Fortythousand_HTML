@@ -20,6 +20,7 @@
     position: absolute;
     bottom: 50px;
     left: 175px;
+    z-index: 11;
 }
 #boss {
     width: 50px;
@@ -27,12 +28,9 @@
     position: absolute;
     bottom: 50px;
     left: 175px;
+    z-index: 9;
 }
-.character {
-    width: 50px;
-    height: 50px;
-    position: absolute;
-}
+
 .bullet {
     width: 10px;
     height: 20px;
@@ -91,4 +89,24 @@
  
 #restart-button:hover {
     background-color: #746655; /* 鼠标悬停时的背景颜色 */
+}
+
+#pause-button {
+    position: absolute; /* 绝对定位 */
+    top: 10px;
+    left: 95%; 
+    transform: translateX(-50%); /* 水平居中 */
+    padding: 5px 10px; /* 内边距 */
+    background-color: #66ccff; /* 背景颜色 */
+    color: #005c8a; /* 文字颜色 */
+    border: none; /* 无边框 */
+    border-radius: 5px; /* 圆角 */
+    cursor: pointer; /* 鼠标指针样式 */
+    font-size: 10px; /* 字体大小 */
+    font-weight: bold; /* 加粗字体 */
+    z-index: 100;
+}
+
+#pause-button:hover {
+    background-color: #ed65ff; /* 鼠标悬停时的背景颜色 */
 }
