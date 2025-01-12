@@ -13,22 +13,22 @@ const playerElement = document.getElementById('player');
 
     //const bossBulletsCount = document.getElementById('bossBulletsCount');//Debug
 
-    let playerLeft = 175;
-    let playerTop = 500;
+    let playerLeft = 50;
+    let playerTop = 90;
 
-    let bossLeft = 175;
-    let bossTop = 50;
+    let bossLeft = 50;
+    let bossTop = 5;
 
     let startBossHealth = 100; // 初始Boss血量
     let startPlayerHealth = 100; // 初始玩家血量
 
     let verticalSpeedRate = 1;
     let horizontalSpeedRate = 1;
-    const bossVerticalSpeed = 1;
-    const bossHorizontalSpeed = 1;
+    const bossVerticalSpeed = 0.25;
+    const bossHorizontalSpeed = 0.16;
 
-    const playerHorizontalSpeed = 2.5;
-    const playerVerticalSpeed = 3.5;
+    const playerHorizontalSpeed = 0.625;
+    const playerVerticalSpeed = 0.583;
 
 
     const bullets = [];
@@ -101,7 +101,7 @@ const playerElement = document.getElementById('player');
         move()
         {
             this.changeDir();
-            if(this.top < gameContainer.offsetHeight - this.element.offsetHeight && this.verticalSpeedRate > 0)
+            if(this.top < 100 - (this.element.offsetHeight / gameContainer.offsetHeight) * 100 && this.verticalSpeedRate > 0)
                 {
                     this.top += this.verticalSpeed * this.verticalSpeedRate;
                 }
@@ -109,7 +109,7 @@ const playerElement = document.getElementById('player');
                 {
                     this.top += this.verticalSpeed* this.verticalSpeedRate;
                 }
-                if(this.left < gameContainer.offsetWidth - this.element.offsetWidth && this.horizontalSpeedRate > 0)
+                if(this.left < 100 - (this.element.offsetWidth / gameContainer.offsetWidth) * 100 && this.horizontalSpeedRate > 0)
                 {
                     this.left += this.horizontalSpeed* this.horizontalSpeedRate;
                 }
@@ -118,8 +118,8 @@ const playerElement = document.getElementById('player');
                     this.left += this.horizontalSpeed * this.horizontalSpeedRate;
                 }
                 // 更新boss位置
-                this.element.style.left = this.left + 'px';
-                this.element.style.top = this.top + 'px';
+                this.element.style.left = this.left + '%';
+                this.element.style.top = this.top + '%';
         }
         changeDir()
         {
@@ -145,10 +145,10 @@ const playerElement = document.getElementById('player');
                     const bossBullet = document.createElement('img');
                     bossBullet.src = './src/img/boss_bullet2.png';
                     bossBullet.className = 'bullet';
-                    bossBullet.style.left = this.left + 'px';
-                    bossBullet.style.top = this.top + 'px';
-                    const horizontalSpeed = Math.cos(i / createbulletCount * 2 * Math.PI);
-                    const verticalSpeed = Math.sin(i / createbulletCount * 2 * Math.PI);
+                    bossBullet.style.left = this.left + '%';
+                    bossBullet.style.top = this.top + '%';
+                    const horizontalSpeed = Math.cos(i / createbulletCount * 2 * Math.PI) * 0.25;
+                    const verticalSpeed = Math.sin(i / createbulletCount * 2 * Math.PI) * 0.16;
 
                     gameContainer.appendChild(bossBullet);
 
@@ -169,10 +169,10 @@ const playerElement = document.getElementById('player');
                     const bossBullet = document.createElement('img');
                     bossBullet.src = './src/img/boss_bullet2.png';
                     bossBullet.className = 'bullet';
-                    bossBullet.style.left = this.left + 'px';
-                    bossBullet.style.top = this.top + 'px';
-                    const horizontalSpeed = Math.cos(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI);
-                    const verticalSpeed = Math.sin(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI);
+                    bossBullet.style.left = this.left + '%';
+                    bossBullet.style.top = this.top + '%';
+                    const horizontalSpeed = Math.cos(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI) * 0.25;
+                    const verticalSpeed = Math.sin(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI) * 0.16;
 
                     gameContainer.appendChild(bossBullet);
 
@@ -224,7 +224,7 @@ const playerElement = document.getElementById('player');
         createBullets() 
         {
             // 子弹间距
-            const spacing = 15;
+            const spacing = 1.75;
     
             // 创建三发子弹
             for(let i = -1; i <= 1; i++) {
@@ -232,19 +232,19 @@ const playerElement = document.getElementById('player');
                 bullet.src = './src/img/our_bullet2.png';
                 bullet.className = 'bullet';
     
-                // 计算子弹位置，中间子弹在飞机正上方，两侧子弹略微偏移
-                const bulletLeft = this.left + this.element.offsetWidth/2 - 5 + (i * spacing);
-                bullet.style.left = bulletLeft + 'px';
-                bullet.style.top = (this.top - 20) + 'px';
+                // 计算子弹位置，中间子弹在玩家正上方，两侧子弹略微偏移
+                const bulletLeft = this.left + ((this.element.offsetWidth / 3) / gameContainer.offsetWidth) * 100 + (i * spacing);//照理说应该是this.element.offsetWidth / 2更接近角色中心，但是经过测试这里除以3更接近角色中心，不知道为什么
+                bullet.style.left = bulletLeft + '%';
+                bullet.style.top = this.top + '%';
     
                 gameContainer.appendChild(bullet);
     
                 // 为两侧子弹添加横向运动
-                const horizontalSpeed = i * 0.5; // 子弹横向扩散速度
+                const horizontalSpeed = i * 0.5 * 0.125; // 子弹横向扩散速度
     
                 bullets.push({
                     element: bullet,
-                    top: this.top - 20,
+                    top: this.top,
                     left: bulletLeft,
                     horizontalSpeed: horizontalSpeed // 新增横向速度属性
                 });
@@ -267,19 +267,20 @@ const playerElement = document.getElementById('player');
             if(keys['ArrowLeft'] && this.left > 0) {
                 this.left -= this.horizontalSpeed;
             }
-            if(keys['ArrowRight'] && this.left < gameContainer.offsetWidth - this.element.offsetWidth) {
+            if(keys['ArrowRight'] && this.left < 100 - this.element.offsetWidth/gameContainer.offsetWidth * 100) {
                 this.left += this.horizontalSpeed;
             }
             if(keys['ArrowUp'] && this.top > 0) {
                 this.top -= this.verticalSpeed;
             }
-            if(keys['ArrowDown'] && this.top < gameContainer.offsetHeight - this.element.offsetHeight) {
+            if(keys['ArrowDown'] && this.top < 100 - this.element.offsetHeight/gameContainer.offsetHeight * 100) {
                 this.top += this.verticalSpeed;
             }
             
             // 更新角色位置
-            this.element.style.left = this.left + 'px';
-            this.element.style.top = this.top + 'px';
+            this.element.style.left = this.left + '%';
+            this.element.style.top = this.top + '%';
+            //console.log(this.element.offsetWidth/gameContainer.offsetWidth);
         }
     }
 
@@ -297,24 +298,24 @@ const playerElement = document.getElementById('player');
     {
         /*Debug End*/
         //bossBulletsCount.textContent = bossBullets.length;
-        /*console.log("Boss bullets count:\t" + bossBullets.length);
+        console.log("Boss bullets count:\t" + bossBullets.length);
         console.log("Player bullets count:\t" + bullets.length);
-        console.log(" ");*/
+        console.log(" ");
         /*Debug End*/
 
         if(gameStateMachine != GAME_RUNNING) {return;}
         // 更新子弹位置
         for(let i = bullets.length - 1; i >= 0; i--) {
             const bullet = bullets[i];
-            bullet.top -= 8; // 垂直移动速度
+            bullet.top -= 2; // 垂直移动速度
             bullet.left += bullet.horizontalSpeed; // 添加横向移动
 
             // 更新子弹位置
-            bullet.element.style.top = bullet.top + 'px';
-            bullet.element.style.left = bullet.left + 'px';
+            bullet.element.style.top = bullet.top + '%';
+            bullet.element.style.left = bullet.left + '%';
 
             // 移除超出边界的子弹
-            if(bullet.top <= -20 || bullet.left < -10 || bullet.left > gameContainer.offsetWidth || bullet.top > gameContainer.offsetHeight) {
+            if(bullet.top <= 0 - bullet.element.offsetHeight/gameContainer.offsetHeight * 100 || bullet.left < 0 - bullet.element.offsetWidth/gameContainer.offsetWidth * 100 || bullet.left > 100 || bullet.top > 100) {
                 bullet.element.remove();
                 bullets.splice(i, 1);
                 continue;
@@ -356,11 +357,11 @@ const playerElement = document.getElementById('player');
             bossBullet.left += bossBullet.horizontalSpeed; // 添加横向移动
 
             // 更新子弹位置
-            bossBullet.element.style.top = bossBullet.top + 'px';
-            bossBullet.element.style.left = bossBullet.left + 'px';
+            bossBullet.element.style.top = bossBullet.top + '%';
+            bossBullet.element.style.left = bossBullet.left + '%';
 
             // 移除超出边界的子弹
-            if(bossBullet.top <= -20 || bossBullet.left < -10 || bossBullet.left > gameContainer.offsetWidth || bossBullet.top > gameContainer.offsetHeight) {
+            if(bossBullet.top <= 0 - bossBullet.element.offsetHeight/gameContainer.offsetHeight * 100 || bossBullet.left < 0 - bossBullet.element.offsetWidth/gameContainer.offsetWidth * 100 || bossBullet.left > 100 || bossBullet.top > 100) {
                 bossBullet.element.remove();
                 bossBullets.splice(i, 1);
                 continue;
@@ -449,6 +450,7 @@ const playerElement = document.getElementById('player');
         bgm.play();// 用户进行交互后才有bgm，别问，问就是HTML特性
         player.update();
         boss.update();
+        updateBullets();
     }
 
     function gameLoop() 
@@ -483,7 +485,7 @@ const playerElement = document.getElementById('player');
     });
     pauseButton.addEventListener('click',pauseButtonLogic);
 
-    setInterval(updateBullets, 10);
+    //setInterval(updateBullets, 10);
     
     gameLoop();
 

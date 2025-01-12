@@ -3,8 +3,10 @@
     padding: 0;
 }
 #gameContainer {
-    width: 400px;
-    height: 600px;
+    /*width: 400px;
+    height: 600px;*/
+    width: 67vh;
+    height: 100vh;
     background: #000033;
     background-image: url('../src/img/background.jpg');
     background-repeat: repeat;
@@ -12,19 +14,29 @@
     background-size: cover;
     position: relative;
     overflow: hidden;
-    margin: 20px auto;
+    margin: auto auto;
+}
+#gameBar {
+    /*width: 400px;
+    height: 600px;*/
+    width: 100vw;
+    height: 100vh;
+    background: #4C5A58;
+    position: relative;
+    overflow: hidden;
+    margin: auto auto;
 }
 #player {
-    width: 50px;
-    height: 50px;
+    width: 6.66vh;
+    height: 6.66vh;
     position: absolute;
     bottom: 50px;
     left: 175px;
     z-index: 11;
 }
 #boss {
-    width: 50px;
-    height: 50px;
+    width: 6.66vh;
+    height: 6.66vh;
     position: absolute;
     bottom: 50px;
     left: 175px;
@@ -32,8 +44,8 @@
 }
 
 .bullet {
-    width: 10px;
-    height: 20px;
+    width: 1.66vh;
+    height: 1.66vh;
     position: absolute;
     z-index: 10;
 }
@@ -63,7 +75,7 @@
 }
 #gameEndMsg {
     position: absolute;
-    top: 300px; /* 距离顶部 300px */
+    top: 50%; /* 距离顶部 300px */
     left: 30%; /* 距离左边 30% */
     color: white;
     font-size: 20px;
@@ -96,13 +108,13 @@
     top: 10px;
     left: 95%; 
     transform: translateX(-50%); /* 水平居中 */
-    padding: 5px 10px; /* 内边距 */
+    padding: 10px 20px; /* 内边距 */
     background-color: #66ccff; /* 背景颜色 */
     color: #005c8a; /* 文字颜色 */
     border: none; /* 无边框 */
     border-radius: 5px; /* 圆角 */
     cursor: pointer; /* 鼠标指针样式 */
-    font-size: 10px; /* 字体大小 */
+    font-size: 18px; /* 字体大小 */
     font-weight: bold; /* 加粗字体 */
     z-index: 100;
 }
