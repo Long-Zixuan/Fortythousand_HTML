@@ -24,11 +24,11 @@ const playerElement = document.getElementById('player');
 
     let verticalSpeedRate = 1;
     let horizontalSpeedRate = 1;
-    const bossVerticalSpeed = 0.25;
-    const bossHorizontalSpeed = 0.16;
+    const bossVerticalSpeed = 0.25 * 60;
+    const bossHorizontalSpeed = 0.16 * 60;
 
-    const playerHorizontalSpeed = 0.625;
-    const playerVerticalSpeed = 0.583;
+    const playerHorizontalSpeed = 0.625 * 60;
+    const playerVerticalSpeed = 0.583 * 60;
 
 
     const bullets = [];
@@ -45,6 +45,10 @@ const playerElement = document.getElementById('player');
     const GAME_WIN = 1;
     const GAME_DIE = -1;
     const GAME_PAUSE = 2;
+
+    const GAME_FRAME_RATE = 60;
+
+    let deltaTime = 1 / GAME_FRAME_RATE;
 
     
 
@@ -103,19 +107,19 @@ const playerElement = document.getElementById('player');
             this.changeDir();
             if(this.top < 100 - (this.element.offsetHeight / gameContainer.offsetHeight) * 100 && this.verticalSpeedRate > 0)
                 {
-                    this.top += this.verticalSpeed * this.verticalSpeedRate;
+                    this.top += this.verticalSpeed * this.verticalSpeedRate * deltaTime;
                 }
                 if(this.top > 0 && this.verticalSpeedRate < 0)
                 {
-                    this.top += this.verticalSpeed* this.verticalSpeedRate;
+                    this.top += this.verticalSpeed* this.verticalSpeedRate * deltaTime;
                 }
                 if(this.left < 100 - (this.element.offsetWidth / gameContainer.offsetWidth) * 100 && this.horizontalSpeedRate > 0)
                 {
-                    this.left += this.horizontalSpeed* this.horizontalSpeedRate;
+                    this.left += this.horizontalSpeed* this.horizontalSpeedRate * deltaTime;
                 }
                 if(this.left > 0 && this.horizontalSpeedRate < 0)
                 {
-                    this.left += this.horizontalSpeed * this.horizontalSpeedRate;
+                    this.left += this.horizontalSpeed * this.horizontalSpeedRate * deltaTime;
                 }
                 // 更新boss位置
                 this.element.style.left = this.left + '%';
@@ -134,9 +138,13 @@ const playerElement = document.getElementById('player');
         {
             this.attackModeChange();
             if(gameStateMachine != GAME_RUNNING){return;}
+
             let currentTime = Date.now();
             if(currentTime - this.lastAttackTime < this.attackTime){return;}
             this.lastAttackTime = currentTime;
+
+            //if(bossBullets.length >= 70){return;}
+
             if(this.attackMode <= 0.45) 
             {
                 let createbulletCount = 20;
@@ -147,8 +155,8 @@ const playerElement = document.getElementById('player');
                     bossBullet.className = 'bullet';
                     bossBullet.style.left = this.left + '%';
                     bossBullet.style.top = this.top + '%';
-                    const horizontalSpeed = Math.cos(i / createbulletCount * 2 * Math.PI) * 0.25;
-                    const verticalSpeed = Math.sin(i / createbulletCount * 2 * Math.PI) * 0.16;
+                    const horizontalSpeed = Math.cos(i / createbulletCount * 2 * Math.PI) * 0.25 * 2 * 60;
+                    const verticalSpeed = Math.sin(i / createbulletCount * 2 * Math.PI) * 0.16 * 2 * 60;
 
                     gameContainer.appendChild(bossBullet);
 
@@ -171,8 +179,8 @@ const playerElement = document.getElementById('player');
                     bossBullet.className = 'bullet';
                     bossBullet.style.left = this.left + '%';
                     bossBullet.style.top = this.top + '%';
-                    const horizontalSpeed = Math.cos(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI) * 0.25;
-                    const verticalSpeed = Math.sin(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI) * 0.16;
+                    const horizontalSpeed = Math.cos(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI) * 0.25 * 2 * 60;
+                    const verticalSpeed = Math.sin(i / createBulletCount * 0.5 * Math.PI + this.Angle/2 * Math.PI) * 0.16 * 2 * 60;
 
                     gameContainer.appendChild(bossBullet);
 
@@ -240,7 +248,7 @@ const playerElement = document.getElementById('player');
                 gameContainer.appendChild(bullet);
     
                 // 为两侧子弹添加横向运动
-                const horizontalSpeed = i * 0.5 * 0.125; // 子弹横向扩散速度
+                const horizontalSpeed = i * 0.5 * 0.125 * 60; // 子弹横向扩散速度
     
                 bullets.push({
                     element: bullet,
@@ -265,16 +273,16 @@ const playerElement = document.getElementById('player');
         move()
         {
             if(keys['ArrowLeft'] && this.left > 0) {
-                this.left -= this.horizontalSpeed;
+                this.left -= this.horizontalSpeed * deltaTime;
             }
             if(keys['ArrowRight'] && this.left < 100 - this.element.offsetWidth/gameContainer.offsetWidth * 100) {
-                this.left += this.horizontalSpeed;
+                this.left += this.horizontalSpeed * deltaTime;
             }
             if(keys['ArrowUp'] && this.top > 0) {
-                this.top -= this.verticalSpeed;
+                this.top -= this.verticalSpeed * deltaTime;
             }
             if(keys['ArrowDown'] && this.top < 100 - this.element.offsetHeight/gameContainer.offsetHeight * 100) {
-                this.top += this.verticalSpeed;
+                this.top += this.verticalSpeed * deltaTime;
             }
             
             // 更新角色位置
@@ -292,6 +300,20 @@ const playerElement = document.getElementById('player');
             rect1.bottom < rect2.top ||
             rect1.top > rect2.bottom);
     }
+
+    function sleep(ms) 
+    {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    let lastTime = Date.now();
+    function updateDeltaTime()
+    {
+        let currentTime = Date.now();
+        deltaTime = (currentTime - lastTime) / 1000;
+        lastTime = currentTime;
+    }
+      
     let hadTellPlayer = false;
 
     function updateBullets()
@@ -307,8 +329,8 @@ const playerElement = document.getElementById('player');
         // 更新子弹位置
         for(let i = bullets.length - 1; i >= 0; i--) {
             const bullet = bullets[i];
-            bullet.top -= 2; // 垂直移动速度
-            bullet.left += bullet.horizontalSpeed; // 添加横向移动
+            bullet.top -= 120 * deltaTime; // 垂直移动速度
+            bullet.left += bullet.horizontalSpeed * deltaTime; // 添加横向移动
 
             // 更新子弹位置
             bullet.element.style.top = bullet.top + '%';
@@ -338,6 +360,7 @@ const playerElement = document.getElementById('player');
                 isSpacePressed = false;
                 hadTellPlayer = true;
                 alert("坚持住，Boss只剩下半血了！");
+                updateDeltaTime();
             }
             if(boss.health <= 0) 
             {
@@ -353,8 +376,8 @@ const playerElement = document.getElementById('player');
         for(let i = bossBullets.length - 1; i >= 0; i--)
         {
             const bossBullet = bossBullets[i];
-            bossBullet.top += bossBullet.verticalSpeed; // 垂直移动速度
-            bossBullet.left += bossBullet.horizontalSpeed; // 添加横向移动
+            bossBullet.top += bossBullet.verticalSpeed * deltaTime; // 垂直移动速度
+            bossBullet.left += bossBullet.horizontalSpeed * deltaTime; // 添加横向移动
 
             // 更新子弹位置
             bossBullet.element.style.top = bossBullet.top + '%';
@@ -456,6 +479,7 @@ const playerElement = document.getElementById('player');
     function gameLoop() 
     {        
         pauseLogic();
+        updateDeltaTime();
 
         if(gameStateMachine == GAME_RUNNING)
         {
@@ -464,7 +488,8 @@ const playerElement = document.getElementById('player');
 
         if(gameStateMachine == GAME_PAUSE || gameStateMachine == GAME_RUNNING)
         {
-            requestAnimationFrame(gameLoop);
+            sleep(1 / GAME_FRAME_RATE * 1000).then(() => {requestAnimationFrame(gameLoop);});
+            //requestAnimationFrame(gameLoop);
         }
 
         if(gameStateMachine == GAME_WIN)
