@@ -21,7 +21,7 @@
     height: 600px;*/
     width: 100vw;
     height: 100vh;
-    background: #293462;
+    background: #1C1925;
     position: relative;
     overflow: hidden;
     margin: auto auto;
@@ -54,7 +54,7 @@
     position: absolute;
     top: 10px;
     left: 10px;
-    color: white;
+    color: #F9E4C5;
     font-size: 20px;
     z-index: 100;
     font-family: Arial, "Microsoft YaHei", sans-serif;
@@ -63,7 +63,7 @@
     position: absolute;
     top: 50px;
     left: 10px;
-    color: white;
+    color: #F9E4C5;
     font-size: 20px;
     z-index: 100;
     font-family: Arial, "Microsoft YaHei", sans-serif;
@@ -75,9 +75,9 @@
 }
 #gameEndMsg {
     position: absolute;
-    top: 1%;
-    left: 1%;
-    color: #FFF3C1;
+    top: 5%;
+    left: 3%;
+    color: #F9E4C5;
     font-size: 1hv;
     z-index: 101;
     font-weight: bold;
@@ -86,7 +86,7 @@
 #gameDialogBar {
     width: 100%;
     height: 20%;
-    background: #FF5F57;
+    background: #CB7B00;
     position: absolute;
     bottom: -1000px;
     left: -1000px;
@@ -108,8 +108,8 @@
     left: 50%; 
     transform: translateX(-50%); /* 水平居中 */
     padding: 1% 2%; /* 内边距 */
-    background-color: #A84943; /* 背景颜色 */
-    color: #FFF3C1; /* 文字颜色 */
+    background-color: #AA3300; /* 背景颜色 */
+    color: #F9E4C5; /* 文字颜色 */
     border: none; /* 无边框 */
     border-radius: 5px; /* 圆角 */
     cursor: pointer; /* 鼠标指针样式 */
