@@ -9,6 +9,8 @@ const playerElement = document.getElementById('player');
     const pauseButtonTextElement = document.getElementById('PauseText');
     const gameEndTextElement = document.getElementById('gameEndMsgText');
 
+    const gameDiaLogElement = document.getElementById('gameDialogBar');
+
     const bgm = document.getElementById("bgMusic");
 
     //const bossBulletsCount = document.getElementById('bossBulletsCount');//Debug
@@ -50,7 +52,18 @@ const playerElement = document.getElementById('player');
 
     let deltaTime = 1 / GAME_FRAME_RATE;
 
-    
+    document.addEventListener("visibilitychange", function() {
+        var string = document.visibilityState
+        console.log(string)
+        if (string === 'hidden') {  // 当页面由前端运行在后端时，出发此代码
+            console.log('网页处于后台运行')
+            pauseGame();
+        }
+        if (string === 'visible') {   // 当页面由隐藏至显示时
+            console.log('网页处于前台运行')
+        }
+      });
+      
 
     document.addEventListener('keydown', (e) => {
         keys[e.key] = true;
@@ -353,14 +366,16 @@ const playerElement = document.getElementById('player');
             }
             if(boss.health == startBossHealth / 2 && !hadTellPlayer)
             {
-                for(key in keys)
+                /*for(key in keys)
                 {
                     keys[key] = false;
                 }
                 isSpacePressed = false;
                 hadTellPlayer = true;
                 alert("坚持住，Boss只剩下半血了！");
-                updateDeltaTime();
+                updateDeltaTime();*/
+                requestAnimationFrame(bossHalfHealthLogic);
+                hadTellPlayer = true;
             }
             if(boss.health <= 0) 
             {
@@ -408,17 +423,50 @@ const playerElement = document.getElementById('player');
 
     }
 
+    function showDialogBar()
+    {
+        if(gameStateMachine == GAME_PAUSE)
+        {
+            restartButtonTextElement.textContent = "继续游戏";
+        }
+        if(gameStateMachine == GAME_WIN || gameStateMachine == GAME_DIE)
+        {
+            restartButtonTextElement.textContent = "重新开始";
+        }
+        gameDiaLogElement.style.bottom = "0px";
+        gameDiaLogElement.style.left = "0px";
+    }
+
+    function hideDialogBar()
+    {
+        gameDiaLogElement.style.bottom = "-1000px";
+        gameDiaLogElement.style.left = "-1000px";
+    }
+
+    function pauseGame()
+    {
+        gameStateMachine = GAME_PAUSE;
+        gameEndTextElement.textContent = "游戏已暂停";     
+        requestAnimationFrame(showDialogBar);
+        bgm.pause();
+    }
+
+    function resumeGame()
+    {
+        gameStateMachine = GAME_RUNNING;
+        requestAnimationFrame(hideDialogBar);
+        bgm.play();
+    }
+
     function pauseButtonLogic()
     {
         if(gameStateMachine == GAME_PAUSE)
         {
-            gameStateMachine = GAME_RUNNING;
-            bgm.play();
+            resumeGame();
         }
         else if(gameStateMachine == GAME_RUNNING)
         {
-            gameStateMachine = GAME_PAUSE;
-            bgm.pause();
+            pauseGame();
         }
     }
 
@@ -426,34 +474,32 @@ const playerElement = document.getElementById('player');
     {
         if(keys['Escape'] && gameStateMachine == GAME_RUNNING)
         {
-            gameStateMachine = GAME_PAUSE;
-            bgm.pause();
+            pauseGame();
         }
         else if(keys['Escape'] && gameStateMachine == GAME_PAUSE)
         {
-            gameStateMachine = GAME_RUNNING;
-            bgm.play();
+            resumeGame();
         }
 
         if(gameStateMachine == GAME_PAUSE)
         {
             pauseButtonTextElement.textContent = "继续";
-            gameEndTextElement.textContent = "游戏已暂停";     
+            //gameEndTextElement.textContent = "游戏已暂停";     
         }
         else if(gameStateMachine == GAME_RUNNING)
         {
             pauseButtonTextElement.textContent = "暂停";
-            gameEndTextElement.textContent = "";
+            //gameEndTextElement.textContent = "";
         }
-
     }
 
     function winLogic()
     {
         bgm.pause();
+        showDialogBar();
         boss.element.src = './src/img/boss_die.png';
-        restartButton.style.bottom = '10px';
-        restartButton.style.left = '50%';
+        //restartButton.style.bottom = '10px';
+        //restartButton.style.left = '50%';
         gameEndTextElement.textContent = "你赢了!你剩余血量："+player.health;
         
     }
@@ -462,10 +508,18 @@ const playerElement = document.getElementById('player');
     function dieLogic()
     {
         bgm.pause();
+        showDialogBar();
         playerElement.src = './src/img/player_die.png';
-        restartButton.style.bottom = '10px';
-        restartButton.style.left = '50%';
+        //restartButton.style.bottom = '10px';
+        //restartButton.style.left = '50%';
         gameEndTextElement.textContent = "你ga了。Boss剩余血量："+boss.health;
+    }
+
+    function bossHalfHealthLogic()
+    {
+        gameEndTextElement.textContent = "坚持住，Boss只剩下半血了！我一定要战胜她。";
+        gameStateMachine = GAME_PAUSE;
+        showDialogBar();
     }
 
     function update()
@@ -478,8 +532,8 @@ const playerElement = document.getElementById('player');
 
     function gameLoop() 
     {        
-        pauseLogic();
         updateDeltaTime();
+        pauseLogic();
 
         if(gameStateMachine == GAME_RUNNING)
         {
@@ -506,7 +560,14 @@ const playerElement = document.getElementById('player');
     }
 
     restartButton.addEventListener('click', function() {
-        location.reload();
+        if(gameStateMachine == GAME_DIE || gameStateMachine == GAME_WIN)
+        {
+            location.reload();
+        }
+        if(gameStateMachine == GAME_PAUSE)
+        {
+            resumeGame();
+        }
     });
     pauseButton.addEventListener('click',pauseButtonLogic);
 
