@@ -423,18 +423,46 @@ const playerElement = document.getElementById('player');
 
     }
 
-    function showDialogBar()
+    function showDialogBar(text,bottomText,textMode)
     {
-        if(gameStateMachine == GAME_PAUSE)
+        if(gameStateMachine == GAME_PAUSE && bottomText == null)
         {
             restartButtonTextElement.textContent = "继续游戏";
         }
-        if(gameStateMachine == GAME_WIN || gameStateMachine == GAME_DIE)
+        if((gameStateMachine == GAME_WIN || gameStateMachine == GAME_DIE) && bottomText == null )
         {
             restartButtonTextElement.textContent = "重新开始";
         }
+
+        
         gameDiaLogElement.style.bottom = "0px";
         gameDiaLogElement.style.left = "0px";
+
+        if(gameStateMachine == GAME_PAUSE && text == '')
+        {
+            gameEndTextElement.textContent = "游戏已暂停";
+            return;
+        }
+
+        if(textMode == false)
+        {
+            gameEndTextElement.textContent = text;
+            return;
+        }
+
+        let index = 0;
+
+        gameEndTextElement.textContent = "";
+
+        function typeWriter() {
+            if (index < text.length) {
+                gameEndTextElement.textContent += text.charAt(index);
+                index++;
+                setTimeout(typeWriter, 100); // 调整速度
+            }
+        }
+
+        typeWriter();
     }
 
     function hideDialogBar()
@@ -446,8 +474,9 @@ const playerElement = document.getElementById('player');
     function pauseGame()
     {
         gameStateMachine = GAME_PAUSE;
-        gameEndTextElement.textContent = "游戏已暂停";     
-        requestAnimationFrame(showDialogBar);
+        //requestAnimationFrame(showDialogBar);
+        showDialogBar("游戏已暂停",null,false);
+        //gameEndTextElement.textContent = "游戏已暂停";     
         bgm.pause();
     }
 
@@ -496,11 +525,11 @@ const playerElement = document.getElementById('player');
     function winLogic()
     {
         bgm.pause();
-        showDialogBar();
+        showDialogBar("你赢了!你剩余血量："+player.health);
         boss.element.src = './src/img/boss_die.png';
         //restartButton.style.bottom = '10px';
         //restartButton.style.left = '50%';
-        gameEndTextElement.textContent = "你赢了!你剩余血量："+player.health;
+        //gameEndTextElement.textContent = "你赢了!你剩余血量："+player.health;
         
     }
 
@@ -508,18 +537,18 @@ const playerElement = document.getElementById('player');
     function dieLogic()
     {
         bgm.pause();
-        showDialogBar();
+        showDialogBar("你ga了。Boss剩余血量："+boss.health);
         playerElement.src = './src/img/player_die.png';
         //restartButton.style.bottom = '10px';
         //restartButton.style.left = '50%';
-        gameEndTextElement.textContent = "你ga了。Boss剩余血量："+boss.health;
+        //gameEndTextElement.textContent = "你ga了。Boss剩余血量："+boss.health;
     }
 
     function bossHalfHealthLogic()
     {
-        gameEndTextElement.textContent = "坚持住，Boss只剩下半血了！我一定要战胜她。";
+        //gameEndTextElement.textContent = "坚持住，Boss只剩下半血了！我一定要战胜她。";
         gameStateMachine = GAME_PAUSE;
-        showDialogBar();
+        showDialogBar("坚持住，Boss只剩下半血了！我一定要战胜她。");
     }
 
     function update()
